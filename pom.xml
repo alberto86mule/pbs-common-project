@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.mhra</groupId>
-	<artifactId>mhra-mule-common</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+	<groupId>co.uk.pbs</groupId>
+	<artifactId>pbs-mule-common</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-	<name>Mule mhra-mule-common Application</name>
+	<name>Mule pbs-mule-common Application</name>
 
     <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -190,21 +190,7 @@
             <url>http://repository.mulesoft.org/releases/</url>
             <layout>default</layout>
         </repository>
-<!-- 
-        <repository>
-            <id>release-ah</id>
-            <name>My Own repo</name>
-            <url>http://51.15.129.23:8090/repository/release-ah/</url>
-            <layout>default</layout>
-        </repository>
-        <repository>
-            <id>release-ah-snapshot</id>
-            <name>My Own repo</name>
-            <url>http://51.15.129.23:8090/repository/maven-snapshots/</url>
-            <layout>default</layout>
-        </repository>
- -->
-    </repositories>
+	</repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>mulesoft-release</id>
@@ -215,23 +201,5 @@
                 <enabled>false</enabled>
             </snapshots>
         </pluginRepository>
-    </pluginRepositories>
-
-<!-- 
-   	<distributionManagement>
-	   <snapshotRepository>
-	      <id>release-ah</id>
-	      <url>http://51.15.129.23:8090/repository/maven-snapshots/</url>  
-	   </snapshotRepository>   
-	   <repository>
-	      <id>release-ah</id>
-	      <url>http://51.15.129.23:8090/repository/release-ah/</url>  
-	   </repository> 
-	</distributionManagement>
-	
-	<scm>
-		<developerConnection>scm:git:https://${scmuser}@bitbucket.org/aminul1983/mhra-mule-common.git</developerConnection>
-		<tag>HEAD</tag>
-	</scm>
- -->    
+    </pluginRepositories> 
 </project>
