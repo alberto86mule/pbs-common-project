@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<sub-flow name="mhra-mule-common-request-initiation-subflow">
+		<set-variable variableName="transactionId"
+			value="#[(message.inboundProperties['transactionId'] != null) ? message.inboundProperties['transactionId'] : java.util.UUID.randomUUID().toString().replace('-', '')]"
+			doc:name="Set Transaction ID" />
+        <set-variable variableName="logLevel" value="#[org.apache.log4j.Level.INFO]" doc:name="Set logLevel"/>
+		<set-variable variableName="clientId"
+			value="#[message.inboundProperties['client_id'] == null? (message.inboundProperties['http.query.params']['client_id'] == null? null: message.inboundProperties['http.query.params']['client_id']) : (message.inboundProperties['client_id'])]"
+			doc:name="Set clientId" />
+		<set-variable variableName="resource"
+			value="#[message.inboundProperties['http.relative.path'] != null? message.inboundProperties['http.relative.path'] : null]"
+			doc:name="Set resource" />
+		<set-variable variableName="processingStage"
+			value="#[org.mhra.mule.ProcessingStageType.IN_PROGRESS]" doc:name="Set processingStatus" />
+		<set-variable variableName="transactionStatus"
+			value="#[org.mhra.mule.TransactionStatusType.IN_PROGRESS]" doc:name="Set transactionStatus" />
+		<expression-component doc:name="Set integrationPattern"><![CDATA[import org.mhra.mule.IntegrationPatternType;
+
+if(message.inboundProperties['http.scheme'] != null) {
+	flowVars.integrationPattern = IntegrationPatternType.HTTP;
+} else if(flowVars.batchJobInstanceId != null) {
+	flowVars.integrationPattern = IntegrationPatternType.BATCH;
+} else if(payload is org.mule.transport.file.ReceiverFileInputStream) {
+	flowVars.integrationPattern = IntegrationPatternType.FILE;
+} else if(payload is org.mule.transport.sftp.SftpInputStream) {
+	flowVars.integrationPattern = IntegrationPatternType.SFTP;
+} else if (message.inboundProperties['JMSDestination'] != null) {
+	flowVars.integrationPattern = IntegrationPatternType.MESSAGING;
+}]]></expression-component>
+		<flow-ref name="mhra-mule-common-audit-logger-subflow"
+			doc:name="mhra-mule-common-audit-logger-subflow" />
+	</sub-flow>
+	<sub-flow name="mhra-mule-common-response-finalize-subflow">
+		<choice doc:name="Choice">
+			<when
+				expression="#[flowVars.errorRaised != null &amp;&amp; flowVars.errorRaised == true]">
+				<set-variable variableName="transactionStatus"
+					value="#[org.mhra.mule.TransactionStatusType.FAILURE]" doc:name="Reset transactionStatus - Failure" />
+			</when>
+			<otherwise>
+				<set-variable variableName="transactionStatus"
+					value="#[org.mhra.mule.TransactionStatusType.SUCCESS]" doc:name="Reset transactionStatus - Success" />
+			</otherwise>
+		</choice>
+		<set-variable variableName="processingStage"
+			value="#[org.mhra.mule.ProcessingStageType.COMPLTED]" doc:name="Reset processingStage - Completed" />
+		<flow-ref name="mhra-mule-common-audit-logger-subflow"
+			doc:name="mhra-mule-common-audit-logger-subflow" />
+	</sub-flow>
+	<sub-flow name="mhra-mule-batch-process-completion-subflow">
+		<logger level="INFO" doc:name="Logger" />
+	</sub-flow>
+</mule>

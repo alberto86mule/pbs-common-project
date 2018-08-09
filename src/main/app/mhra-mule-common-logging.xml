@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+    <sub-flow name="mhra-mule-common-logger-subflow">
+        <dw:transform-message doc:name="Compose Outbound Log Message">
+            <dw:set-variable resource="classpath:dwl/compose-common-log-msg.dwl" variableName="commonLogMsg"/>
+        </dw:transform-message>
+        <expression-component doc:name="Expression"><![CDATA[import org.mhra.mule.CustomLogger;
+category = flowVars.logCategory != null? flowVars.logCategory :  'Info';
+CustomLogger.log(flowVars.commonLogMsg, category , flowVars.logLevel);
+
+]]></expression-component>
+        <remove-variable variableName="commonLogMsg" doc:name="Remove commonLogMsg"/>
+        <remove-variable variableName="errorMessage" doc:name="Reset errorMessage"/>
+        <remove-variable variableName="errorDescription" doc:name="Reset errorDescription"/>
+        <remove-variable variableName="logCategory" doc:name="Reset logCategory"/>
+    </sub-flow>
+    <sub-flow name="mhra-mule-common-audit-logger-subflow">
+        <dw:transform-message doc:name="Compose Common Log Message">
+            <dw:set-variable resource="classpath:dwl/common-log-msg.dwl" variableName="commonLogMsg"/>
+        </dw:transform-message>
+        <expression-component doc:name="Expression"><![CDATA[import org.mhra.mule.CustomLogger;
+
+CustomLogger.log(flowVars.commonLogMsg, "Audit", flowVars.logLevel);]]></expression-component>
+        <remove-variable variableName="commonLogMsg" doc:name="Remove commonLogMsg"/>
+    </sub-flow>
+</mule>
